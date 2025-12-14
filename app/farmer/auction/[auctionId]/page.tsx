@@ -28,7 +28,7 @@ export default function FarmerAuctionSpectatorPage() {
         
         if (res.ok) {
           setAuction(data.auction);
-          setBids(data.bids);
+          setBids(data.bids || []);
           setLoading(false);
         } else {
           setError(data.error || "Failed to fetch auction data");
@@ -81,11 +81,23 @@ export default function FarmerAuctionSpectatorPage() {
     );
   }
 
+  // Helper function to calculate remaining time
+  const getTimeRemaining = (endTime: number) => {
+    const now = Date.now();
+    const difference = endTime - now;
+    return Math.max(0, Math.floor(difference / 1000));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Live Auction</h1>
+          {typeof params.auctionId === 'string' && params.auctionId.startsWith("demo-") && (
+            <p className="text-sm text-gray-500">
+              Demo Auction (Simulated Live Bidding)
+            </p>
+          )}
           {farmer && (
             <p className="mt-2 text-sm text-gray-600">
               Watching as <b>{farmer.name}</b>
@@ -138,52 +150,38 @@ export default function FarmerAuctionSpectatorPage() {
               </p>
             </div>
           </div>
+          
+          {/* Countdown Timer Display */}
+          {auction && auction.endTime && (
+            <p className="mt-2 text-gray-700">
+              <b>Auction ends in:</b>{" "}
+              {getTimeRemaining(auction.endTime)}s
+            </p>
+          )}
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
-          <div className="border-b border-gray-200 pb-4 mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Live Bids</h2>
-            <p className="text-sm text-gray-500 mt-1">{bids.length} bid(s) so far</p>
-          </div>
+          <h3 className="mt-4 font-bold text-gray-900">Live Bids</h3>
           
-          {bids.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No bids yet</p>
-          ) : (
-            <div className="space-y-3">
-              {[...bids]
-                .sort((a, b) => b.amount - a.amount) // Sort by amount descending
-                .map((bid) => (
-                  <div 
-                    key={bid.id} 
-                    className={`p-4 rounded-lg border ${
-                      auction.winningBidId === bid.id
-                        ? "bg-green-50 border-green-200"
-                        : "bg-gray-50 border-gray-200"
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-gray-900">₹{bid.amount}/kg</p>
-                        <p className="text-sm text-gray-600">
-                          by <b>{bid.traderName || bid.traderId.slice(0, 8) + "..."}</b>
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">
-                          {new Date(bid.timestamp).toLocaleTimeString()}
-                        </p>
-                        {auction.winningBidId === bid.id && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Winning
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
-          )}
+          {bids.length === 0 && <p className="text-gray-700">No bids yet</p>}
+          
+          {bids
+            .sort((a, b) => b.amount - a.amount)
+            .map((bid, index) => (
+              <div
+                key={bid.id}
+                className={`p-2 border ${
+                  index === 0 ? "bg-green-100 border-green-200" : "border-gray-200"
+                }`}
+              >
+                <p className="text-gray-900">
+                  <b>Bidder:</b> {bid.traderName}
+                </p>
+                <p className="text-gray-900">
+                  <b>Amount:</b> ₹{bid.amount}
+                </p>
+              </div>
+          ))}
         </div>
       </div>
     </div>

@@ -52,10 +52,15 @@ export default function ListCropPage() {
 
       if (response.ok) {
         setResult(data);
-        // Redirect to farmer auction spectator page after 2 seconds
-        setTimeout(() => {
-          router.push(`/farmer/auction/${data.auction.id}`);
-        }, 2000);
+        // DEMO MODE: auto-redirect farmer to demo auction
+        if (process.env.NODE_ENV === "development") {
+          router.push("/farmer/auction/demo-auction-0");
+        } else {
+          // Redirect to farmer auction spectator page after 2 seconds
+          setTimeout(() => {
+            router.push(`/farmer/auction/${data.auction.id}`);
+          }, 2000);
+        }
       } else {
         setError(data.error || "Failed to list crop");
       }

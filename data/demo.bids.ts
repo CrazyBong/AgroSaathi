@@ -4,12 +4,23 @@ import { getBidsByAuctionId } from "./bids.store"
 
 const demoTraders = ["Shiv", "Rohan", "Vikas", "Neeraj"]
 
+const g = globalThis as any
+if (!g.__DEMO_LAST_BID_TIME__) {
+  g.__DEMO_LAST_BID_TIME__ = {}
+}
+
 export function simulateBids() {
   auctions
     .filter(a => a.status === "OPEN" && a.id.startsWith("demo-"))
     .forEach(auction => {
-      const auctionBids = getBidsByAuctionId(auction.id)
+      const lastTime = g.__DEMO_LAST_BID_TIME__[auction.id] || 0
+      const now = Date.now()
 
+      // random human delay: 1–4 seconds
+      const delay = 1000 + Math.random() * 3000
+      if (now - lastTime < delay) return
+
+      const auctionBids = getBidsByAuctionId(auction.id)
       if (auctionBids.length >= 4) return
 
       // Get the crop associated with this auction to check MSP
@@ -47,5 +58,7 @@ export function simulateBids() {
       }
       
       addOrUpdateAuction(updatedAuction)
+
+      g.__DEMO_LAST_BID_TIME__[auction.id] = now
     })
 }
