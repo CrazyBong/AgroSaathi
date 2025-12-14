@@ -11,6 +11,7 @@ export default function TraderAuctionsPage() {
   const [closeAuctionResult, setCloseAuctionResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [newBidId, setNewBidId] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("trader");
@@ -61,6 +62,9 @@ export default function TraderAuctionsPage() {
       if (response.ok) {
         setPlaceBidResult(data);
         setAmount(""); // Clear the amount field after successful bid
+        // Highlight the new bid briefly
+        setNewBidId(data.bid.id);
+        setTimeout(() => setNewBidId(null), 3000);
       } else {
         setError(data.error || "Failed to place bid");
       }

@@ -36,8 +36,10 @@ export async function GET(req: Request) {
   }
 
   // 🔹 Live auction feed
+  const now = Date.now()
   const liveAuctions = auctions
     .filter(a => a.status === "OPEN")
+    .filter(a => now - a.startTime < 2 * 60 * 1000) // only recent ones
     .map(a => {
       const crop = crops.find(c => c.id === a.cropId)
       const auctionBids = bids.filter(b => b.auctionId === a.id)

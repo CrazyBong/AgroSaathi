@@ -8,11 +8,12 @@ function generateId(): string {
 }
 
 export function seedDemoAuctions() {
-  const demoFarmers = [
-    { name: "Rahul", crop: "Wheat", qty: 500, msp: 2100 },
-    { name: "Amit", crop: "Rice", qty: 800, msp: 1800 },
-    { name: "Suresh", crop: "Maize", qty: 600, msp: 1700 },
-  ]
+  const demoFarmers = Array.from({ length: 20 }).map((_, i) => ({
+    name: `Farmer-${i + 1}`,
+    crop: ["Wheat", "Rice", "Maize", "Barley"][i % 4],
+    qty: 300 + i * 25,
+    msp: 1600 + (i % 4) * 200,
+  }))
 
   demoFarmers.forEach((f, i) => {
     const cropId = `demo-crop-${i}`

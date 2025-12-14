@@ -12,6 +12,7 @@ export default function FarmerAuctionSpectatorPage() {
   const [farmer, setFarmer] = useState<{ id: string; name: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [newBidId, setNewBidId] = useState<string | null>(null);
 
   useEffect(() => {
     // Load farmer from localStorage
@@ -42,6 +43,13 @@ export default function FarmerAuctionSpectatorPage() {
 
     return () => clearInterval(interval);
   }, [auctionId]);
+
+  // Helper function to calculate remaining time
+  const getTimeRemaining = (endTime: number) => {
+    const now = Date.now();
+    const difference = endTime - now;
+    return Math.max(0, Math.floor(difference / 1000));
+  };
 
   if (loading) {
     return (
@@ -81,12 +89,10 @@ export default function FarmerAuctionSpectatorPage() {
     );
   }
 
-  // Helper function to calculate remaining time
-  const getTimeRemaining = (endTime: number) => {
-    const now = Date.now();
-    const difference = endTime - now;
-    return Math.max(0, Math.floor(difference / 1000));
-  };
+  // Get top 3 bids sorted by amount
+  const visibleBids = [...bids]
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -165,22 +171,20 @@ export default function FarmerAuctionSpectatorPage() {
           
           {bids.length === 0 && <p className="text-gray-700">No bids yet</p>}
           
-          {bids
-            .sort((a, b) => b.amount - a.amount)
-            .map((bid, index) => (
-              <div
-                key={bid.id}
-                className={`p-2 border ${
-                  index === 0 ? "bg-green-100 border-green-200" : "border-gray-200"
-                }`}
-              >
-                <p className="text-gray-900">
-                  <b>Bidder:</b> {bid.traderName}
-                </p>
-                <p className="text-gray-900">
-                  <b>Amount:</b> ₹{bid.amount}
-                </p>
-              </div>
+          {visibleBids.map((bid, index) => (
+            <div
+              key={bid.id}
+              className={`p-2 border ${
+                index === 0 ? "bg-green-100 border-green-200" : "border-gray-200"
+              } ${newBidId === bid.id ? "animate-pulse bg-yellow-50" : ""}`}
+            >
+              <p className="text-gray-900">
+                <b>Bidder:</b> {bid.traderName}
+              </p>
+              <p className="text-gray-900">
+                <b>Amount:</b> ₹{bid.amount}
+              </p>
+            </div>
           ))}
         </div>
       </div>

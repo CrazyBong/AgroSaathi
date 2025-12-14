@@ -17,7 +17,7 @@ export function simulateBids() {
       const now = Date.now()
 
       // random human delay: 1–4 seconds
-      const delay = 1000 + Math.random() * 3000
+      const delay = 1000 + Math.random() * 4000
       if (now - lastTime < delay) return
 
       const auctionBids = getBidsByAuctionId(auction.id)
@@ -51,10 +51,10 @@ export function simulateBids() {
 
       addBid(bid)
 
-      // Reset auction timer
+      // Reset auction timer to 20 seconds
       const updatedAuction = {
         ...auction,
-        endTime: Date.now() + 10000 // Reset to 10 seconds from now
+        endTime: Date.now() + 20000 // Reset to 20 seconds from now
       }
       
       addOrUpdateAuction(updatedAuction)
