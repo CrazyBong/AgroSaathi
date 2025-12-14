@@ -28,3 +28,12 @@ Continue building your app on:
 2. Deploy your chats from the v0 interface
 3. Changes are automatically pushed to this repository
 4. Vercel deploys the latest version from this repository
+
+## Backend Architecture (Phase 1)
+
+This is a hackathon MVP with a local-only backend implementation.
+
+- API routes exist but logic is not implemented
+- Core business logic will be added in the next phase
+- Data is stored in-memory (no persistence)
+- No database connections or authentication implemented
