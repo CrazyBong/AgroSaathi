@@ -108,6 +108,13 @@ export default function TraderAuctionsPage() {
     }
   };
 
+  // Helper function to calculate remaining time
+  const getTimeRemaining = (endTime: number) => {
+    const now = Date.now();
+    const difference = endTime - now;
+    return Math.max(0, Math.floor(difference / 1000));
+  };
+
   if (!trader) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -178,6 +185,12 @@ export default function TraderAuctionsPage() {
                       <p className="text-sm text-gray-600">
                         <b>Bids:</b> {a.bidCount}
                       </p>
+                      {/* Countdown Timer Display */}
+                      {a.status === "OPEN" && a.endsAt && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          <b>Ends In:</b> {getTimeRemaining(a.endsAt)}s
+                        </p>
+                      )}
                     </div>
                   </div>
                   <button

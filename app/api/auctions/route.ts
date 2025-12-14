@@ -1,9 +1,28 @@
+import { seedDemoAuctions } from "@/data/demo.seed"
 import { auctions } from "@/data/auctions.store"
 import { bids } from "@/data/bids.store"
 import { crops } from "@/data/crops.store"
 import { getAuctionById, addOrUpdateAuction } from "@/data/auctions.store"
 import { getBidsByAuctionId } from "@/data/bids.store"
 import { closeAuction } from "@/core/auction"
+import { simulateBids } from "@/data/demo.bids"
+import { autoCloseAuctions } from "@/data/demo.scheduler"
+
+const g = globalThis as any
+if (!g.__DEMO_SEEDED__) {
+  seedDemoAuctions()
+  g.__DEMO_SEEDED__ = true
+}
+
+// Run demo engine every 3 seconds
+setInterval(() => {
+  try {
+    simulateBids()
+    autoCloseAuctions()
+  } catch (error) {
+    console.error("Demo engine error:", error)
+  }
+}, 3000)
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -34,6 +53,7 @@ export async function GET(req: Request) {
           ? Math.max(...auctionBids.map(b => b.amount))
           : null,
         bidCount: auctionBids.length,
+        endsAt: a.endTime, // Add end time for countdown display
       }
     })
 
@@ -42,14 +62,15 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const body = await req.json()
+  const { auctionId } = body
 
-  const auction = getAuctionById(body.auctionId)
+  const auction = getAuctionById(auctionId)
   if (!auction) {
     return Response.json({ error: "Auction not found" }, { status: 404 })
   }
 
-  const bids = getBidsByAuctionId(auction.id)
-  const closedAuction = closeAuction(auction, bids)
+  const auctionBids = getBidsByAuctionId(auctionId)
+  const closedAuction = closeAuction(auction, auctionBids)
 
   addOrUpdateAuction(closedAuction)
 
